@@ -1,16 +1,31 @@
 package com.qqq.androidweather4.activity;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qqq.androidweather4.R;
 import com.qqq.androidweather4.WeatherApplication;
+import com.qqq.androidweather4.db.CityDao;
+import com.qqq.androidweather4.db.DBHelper;
 import com.qqq.androidweather4.model.WeatherInfo;
 import com.qqq.androidweather4.model.WeatherInfoNow;
 import com.qqq.androidweather4.service.AutoUpdateWidgetService;
@@ -20,10 +35,15 @@ import com.qqq.androidweather4.util.SharePreferencesUtil;
 import com.qqq.androidweather4.util.Utils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
-
+    private List<String> cities = new ArrayList();
 
     private TextView date_y, date;
     private TextView cityField;
@@ -32,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView weather02_day, weather02_night, temp02, wind02;
     private TextView weather03_day, weather03_night, temp03, wind03;
     private ImageView weather_icon01, weather_icon02_day, weather_icon02_night, weather_icon03_day, weather_icon03_night;
-
+    private PopupWindow popupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,12 +99,58 @@ public class MainActivity extends AppCompatActivity {
         cityField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SelectCityActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(MainActivity.this, SelectCityActivity.class);
+                //startActivity(intent);
+                showPopupWindow(v);
             }
         });
 
 
+    }
+
+    private void showPopupWindow(View v) {
+        View view = LayoutInflater.from(this).inflate(R.layout.popup_window_city, null);
+        popupWindow = new PopupWindow(view);
+        popupWindow.setFocusable(true);
+        popupWindow.setWidth(cityField.getWidth());
+        popupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        // popupWindow.setContentView(view);
+        ListView cityListView = (ListView) view.findViewById(R.id.list_view_city);
+        Button addCity = (Button) view.findViewById(R.id.add_city);
+
+        cities.clear();
+        for (String s : SharePreferencesUtil.get("cities", new HashSet<String>())) {
+            cities.add(s);
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, cities);
+        cityListView.setAdapter(adapter);
+        addCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SelectCityActivity.class);
+                startActivity(intent);
+                popupWindow.dismiss();
+            }
+        });
+        cityListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                popupWindow.dismiss();
+                SQLiteDatabase db = DBHelper.getInstance(MainActivity.this).getReadableDatabase();
+                Cursor cursor = db.rawQuery("select " + CityDao.NAME_ENGLISH + " from " + CityDao.TABLE_NAME + " where " + CityDao.NAME + " = ?", new String[]{cities.get(position)});
+                while (cursor.moveToNext()) {
+                    String city_id = cursor.getString(cursor.getColumnIndex(CityDao.NAME_ENGLISH));
+                    WeatherApplication.setCity_id(city_id);
+                    SharePreferencesUtil.put("city_id", city_id);
+                }
+                onResume();
+            }
+        });
+        popupWindow.showAsDropDown(v);
     }
 
     @Override

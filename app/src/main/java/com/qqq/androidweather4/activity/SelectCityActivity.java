@@ -21,8 +21,10 @@ import com.qqq.androidweather4.util.SharePreferencesUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SelectCityActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -48,6 +50,9 @@ public class SelectCityActivity extends AppCompatActivity {
                 WeatherApplication.setCity_id((String) data.get(position).get("cityNameEnglish"));
                 SharePreferencesUtil.put("city_id", (String) data.get(position).get("cityNameEnglish"));
                 //Toast.makeText(SelectCityActivity.this, WeatherApplication.getAddress1(), Toast.LENGTH_SHORT).show();
+                Set<String> cities = SharePreferencesUtil.get("cities", new HashSet<String>());
+                cities.add((String) data.get(position).get("cityName"));
+                SharePreferencesUtil.put("cities", cities);
                 finish();
             }
         });

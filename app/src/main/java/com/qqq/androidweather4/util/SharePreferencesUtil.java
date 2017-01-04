@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 
 import com.qqq.androidweather4.WeatherApplication;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * Created by qqq on 2016-12-22.
  */
@@ -48,5 +51,32 @@ public class SharePreferencesUtil {
 
     public static void put(String name, String key, String value) {
         getSharePreferences(name).edit().putString(key, value).apply();
+    }
+
+    public static Set<String> get(String key, Set<String> defValue) {
+        return get(defaultName, key, defValue);
+    }
+
+    public static Set<String> get(String name, String key, Set<String> defValue) {
+        return getSharePreferences(name).getStringSet(key, defValue);
+    }
+
+    public static void put(String key, Set<String> value) {
+        put(defaultName, key, value);
+    }
+
+    public static void put(String name, String key, Set<String> value) {
+        getSharePreferences(name).edit().putStringSet(key, value).apply();
+    }
+
+
+    public static void put(List<String> value) {
+        put(defaultName, value);
+    }
+
+    public static void put(String name, List<String> value) {
+        for (int i = 0; i < value.size(); i++) {
+            getSharePreferences(name).edit().putString("" + i, value.get(i)).apply();
+        }
     }
 }
