@@ -1,0 +1,39 @@
+{
+	"results":[{
+		"location":{
+			"id":"WTTDPCGXTWUS",
+			"name":"苏州",
+			"country":"CN",
+			"path":"苏州,苏州,江苏,中国",
+			"timezone":"Asia/Shanghai",
+			"timezone_offset":"+08:00"
+		},
+		"suggestion":{
+			"car_washing":{		//洗车
+				"brief":"不宜",
+				"details":""
+			},
+			"dressing":{		//穿衣
+				"brief":"较冷",
+				"details":""
+			},
+			"flu":{			//感冒
+				"brief":"易发",
+				"details":""
+			},
+			"sport":{		//运动
+				"brief":"较不宜",
+				"details":""
+			},
+			"travel":{		//旅游
+				"brief":"适宜",
+				"details":""
+			},
+			"uv":{			//紫外线
+				"brief":"最弱",
+				"details":""
+			}
+		},
+		"last_update":"2016-12-21T14:40:05+08:00"
+	}]
+}
